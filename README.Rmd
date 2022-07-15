@@ -1,6 +1,12 @@
 ---
 title: "README"
+author: "wei <3"
 output: html_document
 ---
 
-weenor
+
+
+include in your README:
+ - a description (1-2 sentences) about your dataset
+ - where/how you got your data
+ - your name
