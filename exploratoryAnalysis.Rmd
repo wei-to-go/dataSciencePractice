@@ -1,0 +1,86 @@
+practice subsetting data
+use a combination of filter, select, mutate, arrange, summarise, group_by, sample, and/or slice
+create a visualization using ur new subset of data
+
+```{r}
+#download initial libraries
+library(ggplot2)
+library(dplyr)
+show_data <- read.csv("data/tv_shows.csv")
+
+head(show_data)
+
+#first practice
+cleanData <- select(show_data, Title:Rotten.Tomatoes) %>%
+                filter(Age != "")
+
+ggplot(data = cleanData, aes(x = factor(Age, c("all", "7+","13+","16+","18+")), fill = Age)) +
+  geom_bar() +
+  labs(x = "age ratings",
+       y = "# of tv shows",
+       title = "age ratings of popular tv shows",
+       fill = "age ratings")
+```
+
+
+### filtering observations based on one or more variables
+```{r}
+mediocre_shows <- filter(cleanData, Rotten.Tomatoes <= "80/100", Rotten.Tomatoes != "100/100", Rotten.Tomatoes >= "60/100")
+
+mediocre_shows #these are all of the middle-rated TV shows
+
+oldies <- filter(cleanData, Year < 2000)
+oldies #these are all the TV shows from the 1900s
+
+new <- filter(cleanData, Year >= 2000)
+new #these are all the TV shows from the 2000s
+
+niche <- filter(cleanData, Rotten.Tomatoes > "80/100" | Rotten.Tomatoes == "100/100", Year > 2005, Title > "The", Title < "U")
+niche #only rated 80 or higher, newer than 2005, titles starting with "the"
+
+```
+
+### creating a smaller dataset with a subset of variables
+
+```{r}
+
+miniData <- select(cleanData, contains("t") | starts_with("I"))
+head(miniData) #only includes the titles and ratings
+
+```
+
+### adding 2 new columns using mutate()
+
+```{r}
+
+subbedTomatoes <- sub("/100","", miniData$Rotten.Tomatoes)
+
+subbedIMDb <- sub("/10","", miniData$IMDb)
+
+numberData <- mutate(miniData, 
+                     numeric_rating = ((as.numeric(subbedTomatoes)) + (as.numeric(subbedIMDb) * 10)) / 2)
+
+numberData <- mutate(numberData,
+                     rating_dif = abs(as.numeric(subbedTomatoes) - (as.numeric(subbedIMDb)*10)))
+
+numberData #gives numerical rating values to each title
+```
+
+### creating a data frame of grouped summaries on numeric variables by categorical variables
+
+```{r}
+
+summarise(numberData, 
+          mean_rating = mean(numeric_rating, na.rm = TRUE),
+          mean_dif = mean(rating_dif, na.rm = TRUE))
+
+```
+
+### creating new visualizations using an updated dataset
+
+```{r}
+
+ggplot(data = numberData, aes(x = numeric_rating, y = rating_dif)) +
+  geom_point()
+
+```
