@@ -1,10 +1,10 @@
 #### load in required libraries ####
 library(ggplot2)
+library(dplyr)
 
 #### Load in csv file ####
 
-show_data <- read.csv("data/tv_shows.csv")
-View(show_data)
+show_data <- read.csv("tv_shows.csv")
 
 #### save r object as a file ####
 saveRDS(show_data, "data/show_data.RDS")
@@ -25,3 +25,32 @@ ggplot(data = show_data, aes(x = Age, fill = Age)) +
        x = "age rating",
        fill = "age rating",
        title = "age ratings of popular tv shows")
+
+
+
+#unsupervised machine learning
+head(show_data)
+
+subbedTomatoes <- sub("/100","", show_data$Rotten.Tomatoes)
+
+subbedIMDb <- sub("/10","", show_data$IMDb)
+
+numberData <- mutate(show_data, 
+                     numericRating = ((as.numeric(subbedTomatoes)) + (as.numeric(subbedIMDb) * 10)) / 2)
+
+numberData <- filter(numberData, Age != "")
+
+show_numerics <- select(numberData, Title, Year, Age, numericRating) %>%
+  scale()
+
+
+show_clusters <- kmeans(show_numerics, center = 3)
+show_clusters #our results
+
+show$cluster <- show_clusters$cluster #add cluster column to original dataset
+head(show_data)
+
+ggplot(show_numerics, aes(x = Year, y = numericRating)) +
+  geom_point(aes(color = Age))
+
+

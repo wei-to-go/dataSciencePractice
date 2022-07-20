@@ -44,8 +44,8 @@ niche #only rated 80 or higher, newer than 2005, titles starting with "the"
 
 ```{r}
 
-miniData <- select(cleanData, contains("t") | starts_with("I"))
-head(miniData) #only includes the titles and ratings
+miniData <- select(cleanData, contains("t") | starts_with("I") | starts_with("Y"))
+head(miniData) #only includes the titles, years, and ratings
 
 ```
 
@@ -57,13 +57,15 @@ subbedTomatoes <- sub("/100","", miniData$Rotten.Tomatoes)
 
 subbedIMDb <- sub("/10","", miniData$IMDb)
 
+miniData <- filter(miniData, Year < 2000)
+
 numberData <- mutate(miniData, 
                      numeric_rating = ((as.numeric(subbedTomatoes)) + (as.numeric(subbedIMDb) * 10)) / 2)
 
 numberData <- mutate(numberData,
                      rating_dif = abs(as.numeric(subbedTomatoes) - (as.numeric(subbedIMDb)*10)))
 
-numberData #gives numerical rating values to each title
+numberData #gives numerical rating values to each title, includes year
 ```
 
 ### creating a data frame of grouped summaries on numeric variables by categorical variables
@@ -80,7 +82,11 @@ summarise(numberData,
 
 ```{r}
 
-ggplot(data = numberData, aes(x = numeric_rating, y = rating_dif)) +
-  geom_point()
+ggplot(data = numberData, aes(x = numeric_rating)) +
+  geom_histogram(fill = "pink", color = "black") +
+  scale_x_continuous(breaks = seq(from = 20, to = 100, by = 10)) +
+  labs(x = "average rating",
+       y = "# of shows",
+       title = "ratings of shows from before 2000")
 
 ```
