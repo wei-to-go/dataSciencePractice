@@ -4,9 +4,4 @@ author: "wei <3"
 output: html_document
 ---
 
-
-
-include in your README:
- - a description (1-2 sentences) about your dataset
- - where/how you got your data
- - your name
+My notes and practice for the Columbia Data Science Research Program. Learning about R, machine learning, and data analysis!
